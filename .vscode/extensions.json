@@ -1,0 +1,16 @@
+{
+	"recommendations": [
+		"ms-vscode-remote.vscode-remote-extensionpack",
+		"editorconfig.editorconfig",
+		"mikestead.dotenv",
+		"pkief.material-icon-theme",
+		"aaron-bond.better-comments",
+		"piotrpalarz.vscode-gitignore-generator",
+		"timonwong.shellcheck",
+		"davidanson.vscode-markdownlint",
+		"redhat.vscode-yaml",
+		"wengerk.highlight-bad-chars",
+		"nhoizey.gremlins",
+		"jeff-hykin.better-dockerfile-syntax"
+	]
+}
