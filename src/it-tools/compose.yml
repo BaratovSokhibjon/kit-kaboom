@@ -3,7 +3,6 @@ services:
     image: corentinth/it-tools:latest
     restart: unless-stopped
     environment:
-      TERM: ${TERM:-xterm}
       TZ: ${TZ:-UTC}
     networks:
       - it-tools
