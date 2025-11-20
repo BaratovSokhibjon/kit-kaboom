@@ -18,7 +18,7 @@ fi
 
 
 ## --- Variables --- ##
-# Load from envrionment variables:
+# Load from environment variables:
 VERSION_FILE_PATH="${VERSION_FILE_PATH:-VERSION.txt}"
 
 
@@ -115,7 +115,7 @@ main()
 		if [ "${_IS_TAG}" == true ]; then
 			echo "[INFO]: Tagging 'v${_new_version}'..."
 			if git rev-parse "v${_new_version}" > /dev/null 2>&1; then
-				echo "[ERROR]: 'v${_new_version}' tag is already exists!"
+				echo "[ERROR]: 'v${_new_version}' tag already exists!"
 				exit 1
 			fi
 			git tag "v${_new_version}" || exit 2
