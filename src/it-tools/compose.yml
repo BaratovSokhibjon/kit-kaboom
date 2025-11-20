@@ -9,7 +9,6 @@ services:
       - it-tools
     ports:
       - "${IT_TOOLS_PORT:-25000}:80"
-    tty: true
 
 
 networks:
