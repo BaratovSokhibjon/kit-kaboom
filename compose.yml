@@ -1,2 +1,3 @@
 include:
   - ./src/it-tools/compose.yml
+  - ./src/immich/compose.yml
