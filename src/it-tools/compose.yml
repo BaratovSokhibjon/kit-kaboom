@@ -1,0 +1,16 @@
+services:
+  it-tools:
+    image: corentinth/it-tools:latest
+    restart: unless-stopped
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: ${TZ:-UTC}
+    networks:
+      - it-tools
+    ports:
+      - "${IT_TOOLS_PORT:-25000}:80"
+    tty: true
+
+
+networks:
+  it-tools:
