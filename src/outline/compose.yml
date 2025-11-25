@@ -1,0 +1,80 @@
+services:
+  outline-db:
+    image: postgres:18-trixie
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      TERM: ${TERM:-xterm}
+      PG_COLOR: ${PG_COLOR:-auto}
+      POSTGRES_INITDB_ARGS: "${OUTLINE_POSTGRES_INITDB_ARGS:--E UTF8 --locale=en_US.UTF-8}"
+      PGPORT: ${OUTLINE_DB_PORT:-5432}
+      POSTGRES_USER: ${OUTLINE_DB_USER:-outline_admin}
+      POSTGRES_PASSWORD: "${OUTLINE_DB_PASSWORD:-OUTLINE_DB_PASSWORD123}"
+      POSTGRES_DB: ${OUTLINE_DB_DATABASE:-outline_db}
+    volumes:
+      - "${OUTLINE_DB_DATA_LOCATION:-../../volumes/storage/outline-db/data}:/var/lib/postgresql"
+    networks:
+      - outline
+    healthcheck:
+      test: "pg_isready -U ${OUTLINE_DB_USER:-outline_admin} -d ${OUTLINE_DB_DATABASE:-outline_db} && psql -U ${OUTLINE_DB_USER:-outline_admin} -d ${OUTLINE_DB_DATABASE:-outline_db} --list"
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    tty: true
+
+  outline-redis:
+    image: redis:8.2.2-bookworm
+    restart: unless-stopped
+    environment:
+      TERM: ${TERM:-xterm}
+      ALLOW_EMPTY_PASSWORD: yes
+    volumes:
+      - "${OUTLINE_REDIS_DATA_LOCATION:-../../volumes/storage/outline-redis/data}:/data"
+    networks:
+      - outline
+    command: ["--port", "${OUTLINE_REDIS_PORT:-6379}"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "${OUTLINE_REDIS_PORT:-6379}", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  outline:
+    image: outlinewiki/outline:1.0.1
+    restart: unless-stopped
+    depends_on:
+      - outline-db
+      - outline-redis
+    environment:
+      # common
+      TZ: ${TZ:-UTC}
+      TERM: ${TERM:-xterm}
+      URL: ${URL:?}
+      PORT: ${OUTLINE_PORT:-25002}
+      PGSSLMODE: $PGSSLMODE:-false}
+
+      # credentials
+      SECRET_KEY: ${SECRET_KEY:?}
+      UTILS_SECRET: ${UTILS_SECRET:?}
+      DATABASE_URL: postgres://${OUTLINE_DB_USER:-outline_admin}:${OUTLINE_DB_PASSWORD:-OUTLINE_DB_PASSWORD123}@${OUTLINE_DB_HOST:-outline-db}:${OUTLINE_DB_PORT:-5432}/${OUTLINE_DB_DATABASE:-outline_db}
+      REDIS_URL: redis://${OUTLINE_REDIS_HOST:-outline-redis}:${OUTLINE_REDIS_PORT:-6379}
+
+      # authentication
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:?}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:?}
+      DISCORD_SERVER_ID: ${DISCORD_SERVER_ID:?}
+      DISCORD_SERVER_ROLES: ${DISCORD_SERVER_ROLES:?}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - "${OUTLINE_DATA_LOCATION:-../../volumes/storage/outline/data}:/var/lib/outline/data"
+    networks:
+      - outline
+    ports:
+      - "${OUTLINE_PORT:-25002}:${OUTLINE_PORT:-25002}"
+    tty: true
+
+
+networks:
+  outline:
