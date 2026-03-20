@@ -40,7 +40,7 @@ services:
       retries: 3
 
   outline:
-    image: outlinewiki/outline:1.0.1
+    image: outlinewiki/outline:1.6
     restart: unless-stopped
     depends_on:
       - outline-db
@@ -51,7 +51,7 @@ services:
       TERM: ${TERM:-xterm}
       URL: ${URL:?}
       PORT: ${OUTLINE_PORT:-25002}
-      PGSSLMODE: $PGSSLMODE:-false}
+      PGSSLMODE: ${PGSSLMODE:-false}
 
       # credentials
       SECRET_KEY: ${SECRET_KEY:?}
@@ -59,11 +59,6 @@ services:
       DATABASE_URL: postgres://${OUTLINE_DB_USER:-outline_admin}:${OUTLINE_DB_PASSWORD:-OUTLINE_DB_PASSWORD123}@${OUTLINE_DB_HOST:-outline-db}:${OUTLINE_DB_PORT:-5432}/${OUTLINE_DB_DATABASE:-outline_db}
       REDIS_URL: redis://${OUTLINE_REDIS_HOST:-outline-redis}:${OUTLINE_REDIS_PORT:-6379}
 
-      # authentication
-      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:?}
-      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:?}
-      DISCORD_SERVER_ID: ${DISCORD_SERVER_ID:?}
-      DISCORD_SERVER_ROLES: ${DISCORD_SERVER_ROLES:?}
     env_file:
       - path: .env
         required: false
