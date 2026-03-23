@@ -1,0 +1,33 @@
+services:
+  ocis:
+    image: owncloud/ocis:${OCIS_VERSION:-latest}
+    restart: unless-stopped
+    entrypoint: /bin/sh
+    command: "-c 'ocis init || true; exec ocis server'"
+    environment:
+      TZ: ${TZ:-UTC}
+      OCIS_URL: ${OCIS_URL:?}
+      PROXY_TLS: ${PROXY_TLS:-false}
+      OCIS_INSECURE: ${OCIS_INSECURE:-false}
+      IDM_ADMIN_PASSWORD: ${IDM_ADMIN_PASSWORD:?}
+      IDM_CREATE_DEMO_USERS: ${IDM_CREATE_DEMO_USERS:-false}
+      OCIS_JWT_SECRET: ${OCIS_JWT_SECRET:?}
+      OCIS_MACHINE_AUTH_API_KEY: ${OCIS_MACHINE_AUTH_API_KEY:?}
+      OCIS_TRANSFER_SECRET: ${OCIS_TRANSFER_SECRET:?}
+      OCIS_SYSTEM_USER_API_KEY: ${OCIS_SYSTEM_USER_API_KEY:?}
+      PROXY_ENABLE_BASIC_AUTH: ${PROXY_ENABLE_BASIC_AUTH:-true}
+      OCIS_LOG_LEVEL: ${OCIS_LOG_LEVEL:-error}
+      OCIS_LOG_COLOR: ${OCIS_LOG_COLOR:-false}
+    user: "${PUID:-1000}:${PGID:-1000}"
+    volumes:
+      - ${OCIS_CONFIG_LOCATION:-../../volumes/storage/ocis/config}:/etc/ocis
+      - ${OCIS_DATA_LOCATION:-../../volumes/storage/ocis/data}:/var/lib/ocis
+    networks:
+      - ocis
+    ports:
+      - "${OCIS_PORT:-25004}:9200"
+    logging:
+      driver: local
+
+networks:
+  ocis:
