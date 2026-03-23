@@ -1,6 +1,7 @@
 services:
   ocis:
     image: owncloud/ocis:${OCIS_VERSION:-latest}
+    hostname: ocis
     restart: unless-stopped
     entrypoint: /bin/sh
     command: "-c 'ocis init || true; exec ocis server'"
@@ -18,14 +19,81 @@ services:
       PROXY_ENABLE_BASIC_AUTH: ${PROXY_ENABLE_BASIC_AUTH:-true}
       OCIS_LOG_LEVEL: ${OCIS_LOG_LEVEL:-error}
       OCIS_LOG_COLOR: ${OCIS_LOG_COLOR:-false}
+      NATS_NATS_HOST: 0.0.0.0
+      NATS_NATS_PORT: 9233
+      GATEWAY_GRPC_ADDR: 0.0.0.0:9142
     user: "${PUID:-1000}:${PGID:-1000}"
     volumes:
       - ${OCIS_CONFIG_LOCATION:-../../volumes/storage/ocis/config}:/etc/ocis
       - ${OCIS_DATA_LOCATION:-../../volumes/storage/ocis/data}:/var/lib/ocis
+      - ./config/app-registry.yaml:/etc/ocis/app-registry.yaml
     networks:
       - ocis
     ports:
       - "${OCIS_PORT:-25004}:9200"
+    logging:
+      driver: local
+
+  collaboration-oo:
+    image: owncloud/ocis:${OCIS_VERSION:-latest}
+    restart: unless-stopped
+    entrypoint: /bin/sh
+    command: "-c 'until nc -z ocis 9233 2>/dev/null && nc -z ocis 9142 2>/dev/null; do echo \"waiting for ocis...\"; sleep 3; done; sleep 5; while true; do ocis collaboration server; echo \"collaboration exited, retrying in 10s...\"; sleep 10; done'"
+    depends_on:
+      ocis:
+        condition: service_started
+      onlyoffice:
+        condition: service_healthy
+    environment:
+      OCIS_URL: ${OCIS_URL:?}
+      OCIS_JWT_SECRET: ${OCIS_JWT_SECRET:?}
+      OCIS_INSECURE: ${OCIS_INSECURE:-false}
+      MICRO_REGISTRY: "nats-js-kv"
+      MICRO_REGISTRY_ADDRESS: "ocis:9233"
+      COLLABORATION_GRPC_ADDR: 0.0.0.0:9301
+      COLLABORATION_HTTP_ADDR: 0.0.0.0:9300
+      COLLABORATION_WOPI_SRC: http://collaboration-oo:9300
+      COLLABORATION_APP_NAME: "OnlyOffice"
+      COLLABORATION_APP_PRODUCT: "OnlyOffice"
+      COLLABORATION_APP_ADDR: ${ONLYOFFICE_URL:?}
+      COLLABORATION_APP_ICON: ${ONLYOFFICE_URL:?}/web-apps/apps/documenteditor/main/resources/img/favicon.ico
+      COLLABORATION_APP_INSECURE: ${OCIS_INSECURE:-false}
+      COLLABORATION_CS3API_DATAGATEWAY_INSECURE: ${OCIS_INSECURE:-false}
+      COLLABORATION_LOG_LEVEL: ${OCIS_LOG_LEVEL:-error}
+      COLLABORATION_WOPI_SECRET: ${ONLYOFFICE_JWT_SECRET:?}
+    volumes:
+      - ${OCIS_CONFIG_LOCATION:-../../volumes/storage/ocis/config}:/etc/ocis
+    networks:
+      - ocis
+    logging:
+      driver: local
+
+  onlyoffice:
+    image: onlyoffice/documentserver:${ONLYOFFICE_VERSION:-latest}
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/entrypoint-override.sh"]
+    environment:
+      WOPI_ENABLED: "true"
+      USE_UNAUTHORIZED_STORAGE: ${OCIS_INSECURE:-false}
+      JWT_ENABLED: "false"
+      ONLYOFFICE_JWT_SECRET: ${ONLYOFFICE_JWT_SECRET:?}
+    volumes:
+      - ./config/onlyoffice/entrypoint-override.sh:/entrypoint-override.sh
+      - ./config/onlyoffice/local.json:/etc/onlyoffice/documentserver/local.dist.json
+      - ${ONLYOFFICE_LOG_LOCATION:-../../volumes/storage/onlyoffice/logs}:/var/log/onlyoffice
+      - ${ONLYOFFICE_DATA_LOCATION:-../../volumes/storage/onlyoffice/data}:/var/www/onlyoffice/Data
+      - ${ONLYOFFICE_LIB_LOCATION:-../../volumes/storage/onlyoffice/lib}:/var/lib/onlyoffice
+      - ${ONLYOFFICE_DB_LOCATION:-../../volumes/storage/onlyoffice/db}:/var/lib/postgresql
+    networks:
+      - ocis
+    ports:
+      - "${ONLYOFFICE_PORT:-25005}:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/hosting/discovery"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     logging:
       driver: local
 

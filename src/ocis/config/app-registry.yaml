@@ -1,0 +1,38 @@
+app_registry:
+  mimetypes:
+    - mime_type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      extension: docx
+      name: Microsoft Word
+      description: Microsoft Word document
+      default_app: OnlyOffice
+      allow_creation: true
+    - mime_type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      extension: xlsx
+      name: Microsoft Excel
+      description: Microsoft Excel document
+      default_app: OnlyOffice
+      allow_creation: true
+    - mime_type: application/vnd.openxmlformats-officedocument.presentationml.presentation
+      extension: pptx
+      name: Microsoft PowerPoint
+      description: Microsoft PowerPoint document
+      default_app: OnlyOffice
+      allow_creation: true
+    - mime_type: application/vnd.oasis.opendocument.text
+      extension: odt
+      name: OpenDocument Text
+      description: OpenDocument text document
+      default_app: OnlyOffice
+      allow_creation: true
+    - mime_type: application/vnd.oasis.opendocument.spreadsheet
+      extension: ods
+      name: OpenDocument Spreadsheet
+      description: OpenDocument spreadsheet document
+      default_app: OnlyOffice
+      allow_creation: true
+    - mime_type: application/vnd.oasis.opendocument.presentation
+      extension: odp
+      name: OpenDocument Presentation
+      description: OpenDocument presentation document
+      default_app: OnlyOffice
+      allow_creation: true
