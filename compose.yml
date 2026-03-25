@@ -2,4 +2,5 @@ include:
   - ./src/it-tools/compose.yml
   - ./src/immich/compose.yml
   - ./src/outline/compose.yml
+  - ./src/n8n/compose.yml
   # - ./src/nextcloud/compose.yml

@@ -1,0 +1,29 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:2.4.4
+    restart: unless-stopped
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: ${TZ:-Asia/Seoul}
+      GENERIC_TIMEZONE: ${TZ:-Asia/Seoul}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
+      N8N_RUNNERS_ENABLED: true
+      N8N_PORT: ${N8N_PORT:-55678}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - "n8n-data:/home/node/.n8n"
+      - "../../volumes/storage/n8n/shared:/files"
+    networks:
+      - n8n
+    ports:
+      - "${N8N_PORT:-55678}:${N8N_PORT:-55678}"
+    tty: true
+
+
+networks:
+  n8n:
+
+volumes:
+  n8n-data:
