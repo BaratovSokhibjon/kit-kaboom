@@ -3,3 +3,4 @@ include:
   - ./src/immich/compose.yml
   - ./src/outline/compose.yml
   - ./src/n8n/compose.yml
+  # - ./src/nextcloud/compose.yml
