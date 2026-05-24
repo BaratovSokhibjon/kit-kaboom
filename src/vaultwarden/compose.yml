@@ -1,0 +1,29 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:1.36.0
+    restart: always
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: ${TZ:-Asia/Seoul}
+      DOMAIN: ${VAULTWARDEN_DOMAIN:?error}
+      ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN:?error}
+      SMTP_HOST: ${VAULTWARDEN_SMTP_HOST:?error}
+      SMTP_PORT: ${VAULTWARDEN_SMTP_PORT:?error}
+      SMTP_SECURITY: ${VAULTWARDEN_SMTP_SECURITY:?error}
+      SMTP_USERNAME: ${VAULTWARDEN_SMTP_USERNAME:?error}
+      SMTP_PASSWORD: ${VAULTWARDEN_SMTP_PASSWORD:?error}
+      SMTP_FROM: ${VAULTWARDEN_SMTP_FROM:-noreply@example.com}
+      SMTP_FROM_NAME: ${VAULTWARDEN_SMTP_FROM_NAME:-Vaultwarden}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - "../../volumes/storage/vaultwarden/data:/data"
+    networks:
+      - vaultwarden
+    ports:
+      - "${VAULTWARDEN_PORT:-25010}:80"
+
+networks:
+  vaultwarden:
+
