@@ -5,3 +5,5 @@ include:
   - ./src/n8n/compose.yml
   - ./src/homepage/compose.yml
   # - ./src/nextcloud/compose.yml
+  - ./src/vaultwarden/compose.yml
+
